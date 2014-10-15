@@ -201,9 +201,42 @@ namespace EventManager_CSharp
                 Console.Out.WriteLine("add [date] [time] [duration] [header] [comment] --> add a new event with the given arguments; date format: dd.mm.yyyy; time format: hh:mm; duration in minutes;\r\n");
                 return;
             }
-            //ToDo: Add additional input validity checks
+
             string[] _date = _tokens[1].Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
             string[] _time = _tokens[2].Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+
+            //Date validity check
+            try
+            {
+                new DateTime(Int32.Parse(_date[2]), Int32.Parse(_date[1]), Int32.Parse(_date[0]), 0, 0, 0);
+            }
+            catch
+            {
+                Console.WriteLine("Invalid date given");
+                return;
+            }
+
+            //Time validity check
+            try
+            {
+                new DateTime(1, 1, 1, Int32.Parse(_time[0]), Int32.Parse(_time[1]), 0);
+            }
+            catch
+            {
+                Console.WriteLine("Invalid time given");
+                return;
+            }
+
+            //Duration validity check
+            try
+            {
+                Int32.Parse(_tokens[3]);
+            }
+            catch
+            {
+                Console.WriteLine("Invalid duration given. Should be an integer");
+                return;
+            }
 
             DateTime _datetime = new DateTime(Int32.Parse(_date[2]), Int32.Parse(_date[1]), Int32.Parse(_date[0]), Int32.Parse(_time[0]), Int32.Parse(_time[1]), 0);
             int _duration = Int32.Parse(_tokens[3]);
@@ -215,7 +248,6 @@ namespace EventManager_CSharp
             foreach (FileInfo _fi in _di.GetFiles())
             {
                 string fileName = _fi.Name.Substring(0, _fi.Name.Length - ".event".Length);
-                Console.WriteLine(fileName);
                 int fileNum = Int32.Parse(fileName);
                 if (fileNum >= _id)
                     _id = fileNum + 1;
@@ -225,7 +257,6 @@ namespace EventManager_CSharp
             StreamWriter _sw = new StreamWriter(File.Open(newEventFilePath, FileMode.CreateNew, FileAccess.Write));
             _sw.WriteLine(newEventFileContent);
             _sw.Close();
-            Console.WriteLine(newEventFileContent);
             // ToDo: send the newly created file to the other devices...
         }
 
