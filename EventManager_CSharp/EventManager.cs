@@ -174,6 +174,7 @@ namespace EventManager_CSharp
             int _duration = Int32.Parse(_tokens[3]);
             string _header = _tokens[4];
             string _comment = _tokens[5];
+
             DirectoryInfo _di = new DirectoryInfo(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events"));
             int _id = 0;
             foreach (FileInfo _fi in _di.GetFiles())
@@ -217,7 +218,12 @@ namespace EventManager_CSharp
         /// </summary>
         private void clear()
         {
-            //ToDo: Remove all events and notify other devices 
+            DirectoryInfo _di = new DirectoryInfo(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events"));
+            foreach (FileInfo _fi in _di.GetFiles())
+            {
+                File.Delete(_fi.FullName);
+            }
+            //ToDo: Notify other devices 
         }
 
         /// <summary>
