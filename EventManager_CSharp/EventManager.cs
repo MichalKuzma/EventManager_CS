@@ -102,7 +102,42 @@ namespace EventManager_CSharp
             string _id = _tokens[1];
             string _field = _tokens[2];
             string _newValue = _tokens[3];
-            //ToDo: Modify the given event locally as well as remote
+
+            StreamReader _sr = new StreamReader(File.Open(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events\\" + _id + ".event"), FileMode.Open, FileAccess.Read));
+            string _s = _sr.ReadLine();
+            _sr.Close();
+            string[] _fields = _s.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
+            DateTime _datetime;
+            switch (_field)
+            {
+                case "date":
+                    string[] _date = _newValue.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+                    _datetime = new DateTime(Int32.Parse(_date[2]), Int32.Parse(_date[1]), Int32.Parse(_date[0]), 0, 0, 0);
+                    _fields[1] = _datetime.Day + "." + _datetime.Month + "." + _datetime.Year;
+                    break;
+                case "time":
+                    string[] _time = _newValue.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                    _datetime = new DateTime(1, 1, 1, Int32.Parse(_time[0]), Int32.Parse(_time[1]), 0);
+                    _fields[2] = _datetime.ToShortTimeString();
+                    break;
+                case "duration":
+                    _fields[3] = _newValue;
+                    break;
+                case "header":
+                    _fields[4] = _newValue;
+                    break;
+                case "comment":
+                    _fields[5] = _newValue;
+                    break;
+                default:
+                    Console.WriteLine("Wrong field name given");
+                    return;
+            }
+            _s = String.Join("\t", _fields);
+            StreamWriter _sw = new StreamWriter(File.Open(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events\\" + _id + ".event"), FileMode.Create, FileAccess.Write));
+            _sw.WriteLine(_s);
+            _sw.Close();
+            //ToDo: Modify the given event remote
         }
 
         /// <summary>
@@ -210,7 +245,8 @@ namespace EventManager_CSharp
             //ToDo: Add additional input validity checks
             int _id = Int32.Parse(_tokens[1]);
 
-            //ToDo: Remove event with the given id and notify other devices
+            File.Delete(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events\\" + _tokens[1] + ".event"));
+            //ToDo: Notify other devices
         }
 
         /// <summary>
