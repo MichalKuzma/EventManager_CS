@@ -98,7 +98,6 @@ namespace EventManager_CSharp
                 Console.Out.WriteLine("modify [id] [field] [newValue] --> Modify the event with the given id and set the value of the specified field to [newValue].\r\n");
                 return;
             }
-            //ToDo: Add additional input validity checks
             string _id = _tokens[1];
             string _field = _tokens[2];
             string _newValue = _tokens[3];
@@ -112,15 +111,40 @@ namespace EventManager_CSharp
             {
                 case "date":
                     string[] _date = _newValue.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
-                    _datetime = new DateTime(Int32.Parse(_date[2]), Int32.Parse(_date[1]), Int32.Parse(_date[0]), 0, 0, 0);
+                    try
+                    {
+                        _datetime = new DateTime(Int32.Parse(_date[2]), Int32.Parse(_date[1]), Int32.Parse(_date[0]), 0, 0, 0);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Invalid date given");
+                        return;
+                    }
                     _fields[1] = _datetime.Day + "." + _datetime.Month + "." + _datetime.Year;
                     break;
                 case "time":
                     string[] _time = _newValue.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
-                    _datetime = new DateTime(1, 1, 1, Int32.Parse(_time[0]), Int32.Parse(_time[1]), 0);
+                    try
+                    {
+                        _datetime = new DateTime(1, 1, 1, Int32.Parse(_time[0]), Int32.Parse(_time[1]), 0);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Invalid time given");
+                        return;
+                    }
                     _fields[2] = _datetime.ToShortTimeString();
                     break;
                 case "duration":
+                    try
+                    {
+                        Int32.Parse(_fields[3]);
+                    }
+                    catch
+                    {
+                        Console.WriteLine("Invalid duration given. Should be an integer");
+                        return;
+                    }
                     _fields[3] = _newValue;
                     break;
                 case "header":
@@ -274,7 +298,15 @@ namespace EventManager_CSharp
                 return;
             }
             //ToDo: Add additional input validity checks
-            int _id = Int32.Parse(_tokens[1]);
+            try
+            {
+                int _id = Int32.Parse(_tokens[1]);
+            }
+            catch
+            {
+                Console.WriteLine("Invalid event ID given. Should be an integer.");
+                return;
+            }
 
             File.Delete(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events\\" + _tokens[1] + ".event"));
             //ToDo: Notify other devices
@@ -298,7 +330,7 @@ namespace EventManager_CSharp
         /// </summary>
         private void help()
         {
-            Console.Out.WriteLine("ls: List all events.\r\n");
+            Console.Out.WriteLine("le: List all events.\r\n");
             Console.Out.WriteLine("add [date] [time] [duration] [header] [comment]: Add a new event with the given arguments. date format: dd.mm.yyyy; time format: hh:mm; duration in minutes;\r\n");
             Console.Out.WriteLine("clear: Remove all events.\r\n");
             Console.Out.WriteLine("drop [ip]: Remove the host with the given IP address from the list of remote hosts. \r\n");
