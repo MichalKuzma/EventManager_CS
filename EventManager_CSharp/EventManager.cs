@@ -174,8 +174,23 @@ namespace EventManager_CSharp
             int _duration = Int32.Parse(_tokens[3]);
             string _header = _tokens[4];
             string _comment = _tokens[5];
-            // ToDo: Write the new date to a file in the directory "events" and send it to the other devices...
-                     
+            DirectoryInfo _di = new DirectoryInfo(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events"));
+            int _id = 0;
+            foreach (FileInfo _fi in _di.GetFiles())
+            {
+                string fileName = _fi.Name.Substring(0, _fi.Name.Length - ".event".Length);
+                Console.WriteLine(fileName);
+                int fileNum = Int32.Parse(fileName);
+                if (fileNum >= _id)
+                    _id = fileNum + 1;
+            }
+            string newEventFileContent = _id.ToString() + "\t" + _datetime.Day + "." + _datetime.Month + "." + _datetime.Year + "\t" + _datetime.ToShortTimeString() + "\t" + _duration.ToString() + "\t" + _header + "\t" + _comment;
+            string newEventFilePath = "..\\..\\..\\events\\"+_id.ToString()+".event";
+            StreamWriter _sw = new StreamWriter(File.Open(newEventFilePath, FileMode.CreateNew, FileAccess.Write));
+            _sw.WriteLine(newEventFileContent);
+            _sw.Close();
+            Console.WriteLine(newEventFileContent);
+            // ToDo: send the newly created file to the other devices...
         }
 
         /// <summary>

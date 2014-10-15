@@ -2,3 +2,8 @@ C:\Users\Michał\Documents\Studia - Informatyka - PUT\Luxemburg\Zajęcia\Distrib
 C:\Users\Michał\Documents\Studia - Informatyka - PUT\Luxemburg\Zajęcia\Distributed Systems and Middleware\Project\EventManagerFramework\EventManagerFramework\EventManager_C#\EventManager_CSharp\bin\Debug\EventManager_CSharp.pdb
 C:\Users\Michał\Documents\Studia - Informatyka - PUT\Luxemburg\Zajęcia\Distributed Systems and Middleware\Project\EventManagerFramework\EventManagerFramework\EventManager_C#\EventManager_CSharp\obj\x86\Debug\EventManager_CSharp.exe
 C:\Users\Michał\Documents\Studia - Informatyka - PUT\Luxemburg\Zajęcia\Distributed Systems and Middleware\Project\EventManagerFramework\EventManagerFramework\EventManager_C#\EventManager_CSharp\obj\x86\Debug\EventManager_CSharp.pdb
+C:\Users\Michał\Documents\GitHub\EventManager_CS\EventManager_CSharp\obj\x86\Debug\EventManager_CSharp.exe
+C:\Users\Michał\Documents\GitHub\EventManager_CS\EventManager_CSharp\obj\x86\Debug\EventManager_CSharp.pdb
+C:\Users\Michał\Documents\GitHub\EventManager_CS\EventManager_CSharp\bin\Debug\EventManager_CSharp.exe
+C:\Users\Michał\Documents\GitHub\EventManager_CS\EventManager_CSharp\bin\Debug\EventManager_CSharp.pdb
+C:\Users\Michał\Documents\GitHub\EventManager_CS\EventManager_CSharp\obj\x86\Debug\EventManager_CSharp.csprojResolveAssemblyReference.cache
