@@ -5,6 +5,7 @@ using System.Text;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Tcp;
+using System.Runtime.Remoting.Channels.Http;
 
 namespace EventManager_CSharp
 {
@@ -24,10 +25,10 @@ namespace EventManager_CSharp
 
         public void Start()
         {
-            TcpChannel chan = new TcpChannel(8080);
+            RemotingConfiguration.Configure("..\\..\\..\\config\\Listener.config", false);
+            HttpChannel chan = new HttpChannel(8080);
             ChannelServices.RegisterChannel(chan, false);
             RemotingConfiguration.RegisterWellKnownServiceType(typeof(EventManager), "EventManager", WellKnownObjectMode.Singleton);
-            //RemotingConfiguration.Configure("..\\..\\..\\config\\Listener.config", false);
         }
     }
 }

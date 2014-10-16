@@ -5,9 +5,11 @@ using System.Text;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization;
 
 namespace EventManager_CSharp
 {
+    [Serializable()]
     class EventManager : MarshalByRefObject
     {
         private static EventManager instance;
@@ -85,6 +87,11 @@ namespace EventManager_CSharp
                     Console.Out.WriteLine("Illegal command: " + _input);
                 }
             }
+        }
+
+        public void sayHello()
+        {
+            Console.Out.WriteLine("Hello World!");
         }
 
         /// <summary>
@@ -205,7 +212,7 @@ namespace EventManager_CSharp
             return localIP;
         }
 
-        private Client makeNewClient(string serverAddress)
+        public Client makeNewClient(string serverAddress)
         {
             Client newClient = new Client(serverAddress);
             Client.clientsMap.Add(serverAddress, newClient);
@@ -225,6 +232,7 @@ namespace EventManager_CSharp
             string _ip = _tokens[1];
             Client newClient = makeNewClient(_tokens[1]);
             newClient.eManager.makeNewClient(getLocalIP());
+            newClient.eManager.sayHello();
         }
 
         /// <summary>
