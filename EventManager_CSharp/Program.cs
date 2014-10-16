@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Runtime.Remoting;
 
 namespace EventManager_CSharp
 {
@@ -11,6 +12,8 @@ namespace EventManager_CSharp
         static void Main(string[] args)
         {
             //ToDo: Start XML-RPC Service
+            Listener.Instance.Start();
+
             EventManager.Instance.Start();            
         }
 

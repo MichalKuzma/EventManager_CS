@@ -3,19 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Net;
+using System.Net.Sockets;
 
 namespace EventManager_CSharp
 {
-    class EventManager
+    class EventManager : MarshalByRefObject
     {
         private static EventManager instance;
-
+        /*
         /// <summary>
         /// Default Constructor.
         /// </summary>
         private EventManager()
         {
-        }
+        }*/
 
         /// <summary>
         /// Singleton pattern instantiation of the EventManager object.
@@ -164,6 +166,12 @@ namespace EventManager_CSharp
             //ToDo: Modify the given event remote
         }
 
+
+        public void deleteClient(string ServerAddress)
+        {
+            Client.clientsMap.Remove(ServerAddress);
+        }
+
         /// <summary>
         /// Method delete the given node from the list of remote hosts
         /// </summary>
@@ -178,8 +186,30 @@ namespace EventManager_CSharp
                 return;
             }
             //ToDo: Add additional input validity checks
-            string _ip = _tokens[1];            
-            //ToDo: Remove the host with the given IP from the list of remote hosts and notify the remote host for mutual deletion.
+            string _ip = _tokens[1];
+
+            Client.clientsMap[_ip].eManager.deleteClient(getLocalIP());
+            deleteClient(_ip);
+        }
+
+        private string getLocalIP()
+        {
+            IPHostEntry host;
+            string localIP = "";
+            host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (IPAddress ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    localIP = ip.ToString();
+            }
+            return localIP;
+        }
+
+        private Client makeNewClient(string serverAddress)
+        {
+            Client newClient = new Client(serverAddress);
+            Client.clientsMap.Add(serverAddress, newClient);
+            return newClient;
         }
 
         private void register(string _input)
@@ -192,8 +222,9 @@ namespace EventManager_CSharp
                 return;
             }
             //ToDo: Add additional input validity checks
-            string _ip = _tokens[1];  
-            //ToDo: Add the host with the given IP to the list of remote hosts and notify the remote host for mutual addition. 
+            string _ip = _tokens[1];
+            Client newClient = makeNewClient(_tokens[1]);
+            newClient.eManager.makeNewClient(getLocalIP());
         }
 
         /// <summary>
@@ -297,7 +328,6 @@ namespace EventManager_CSharp
                 Console.Out.WriteLine("remove [id] --> remove the event with the given id;\r\n");
                 return;
             }
-            //ToDo: Add additional input validity checks
             try
             {
                 int _id = Int32.Parse(_tokens[1]);
