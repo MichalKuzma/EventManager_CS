@@ -89,37 +89,17 @@ namespace EventManager_CSharp
             }
         }
 
-        public void sayHello()
+        public void _modify(string id, string field, string newValue)
         {
-            Console.Out.WriteLine("Hello World!");
-        }
-
-        /// <summary>
-        /// The method modifies the given event locally as well as remote
-        /// </summary>
-        /// <param name="_input">The input string</param>
-        private void modify(string _input)
-        {
-            string[] _tokens = _input.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-            if (_tokens.Count<string>() < 4)
-            {
-                Console.Out.WriteLine("Illegal arguments");
-                Console.Out.WriteLine("modify [id] [field] [newValue] --> Modify the event with the given id and set the value of the specified field to [newValue].\r\n");
-                return;
-            }
-            string _id = _tokens[1];
-            string _field = _tokens[2];
-            string _newValue = _tokens[3];
-
             StreamReader _sr = new StreamReader(File.Open(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events\\" + _id + ".event"), FileMode.Open, FileAccess.Read));
             string _s = _sr.ReadLine();
             _sr.Close();
             string[] _fields = _s.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
             DateTime _datetime;
-            switch (_field)
+            switch (field)
             {
                 case "date":
-                    string[] _date = _newValue.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] _date = newValue.Split(new string[] { "." }, StringSplitOptions.RemoveEmptyEntries);
                     try
                     {
                         _datetime = new DateTime(Int32.Parse(_date[2]), Int32.Parse(_date[1]), Int32.Parse(_date[0]), 0, 0, 0);
@@ -132,7 +112,7 @@ namespace EventManager_CSharp
                     _fields[1] = _datetime.Day + "." + _datetime.Month + "." + _datetime.Year;
                     break;
                 case "time":
-                    string[] _time = _newValue.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] _time = newValue.Split(new string[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
                     try
                     {
                         _datetime = new DateTime(1, 1, 1, Int32.Parse(_time[0]), Int32.Parse(_time[1]), 0);
@@ -154,27 +134,50 @@ namespace EventManager_CSharp
                         Console.WriteLine("Invalid duration given. Should be an integer");
                         return;
                     }
-                    _fields[3] = _newValue;
+                    _fields[3] = newValue;
                     break;
                 case "header":
-                    _fields[4] = _newValue;
+                    _fields[4] = newValue;
                     break;
                 case "comment":
-                    _fields[5] = _newValue;
+                    _fields[5] = newValue;
                     break;
                 default:
                     Console.WriteLine("Wrong field name given");
                     return;
             }
             _s = String.Join("\t", _fields);
-            StreamWriter _sw = new StreamWriter(File.Open(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events\\" + _id + ".event"), FileMode.Create, FileAccess.Write));
+            StreamWriter _sw = new StreamWriter(File.Open(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events\\" + id + ".event"), FileMode.Create, FileAccess.Write));
             _sw.WriteLine(_s);
             _sw.Close();
-            //ToDo: Modify the given event remote
+        }
+
+        /// <summary>
+        /// The method modifies the given event locally as well as remote
+        /// </summary>
+        /// <param name="_input">The input string</param>
+        private void modify(string _input)
+        {
+            string[] _tokens = _input.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+            if (_tokens.Count<string>() < 4)
+            {
+                Console.Out.WriteLine("Illegal arguments");
+                Console.Out.WriteLine("modify [id] [field] [newValue] --> Modify the event with the given id and set the value of the specified field to [newValue].\r\n");
+                return;
+            }
+            string _id = _tokens[1];
+            string _field = _tokens[2];
+            string _newValue = _tokens[3];
+
+            _modify(_id, _field, _newValue);
+            foreach (Client _client in Client.clientsMap.Values)
+            {
+                _client.eManager._modify(_id, _field, _newValue);
+            }
         }
 
 
-        public void deleteClient(string ServerAddress)
+        public void _drop(string ServerAddress)
         {
             Client.clientsMap.Remove(ServerAddress);
         }
@@ -195,8 +198,8 @@ namespace EventManager_CSharp
             //ToDo: Add additional input validity checks
             string _ip = _tokens[1];
 
-            Client.clientsMap[_ip].eManager.deleteClient(getLocalIP());
-            deleteClient(_ip);
+            Client.clientsMap[_ip].eManager._drop(getLocalIP());
+            _drop(_ip);
         }
 
         private string getLocalIP()
@@ -212,7 +215,7 @@ namespace EventManager_CSharp
             return localIP;
         }
 
-        public Client makeNewClient(string serverAddress)
+        public Client _register(string serverAddress)
         {
             Client newClient = new Client(serverAddress);
             Client.clientsMap.Add(serverAddress, newClient);
@@ -230,9 +233,8 @@ namespace EventManager_CSharp
             }
             //ToDo: Add additional input validity checks
             string _ip = _tokens[1];
-            Client newClient = makeNewClient(_tokens[1]);
-            newClient.eManager.makeNewClient(getLocalIP());
-            newClient.eManager.sayHello();
+            Client newClient = _register(_tokens[1]);
+            newClient.eManager._register(getLocalIP());
         }
 
         /// <summary>
@@ -249,6 +251,24 @@ namespace EventManager_CSharp
                 _sr.Close();
                 Console.WriteLine(_s);
             }
+        }
+
+        public void _add(DateTime datetime, int duration, string header, string comment)
+        {
+            DirectoryInfo di = new DirectoryInfo(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events"));
+            int id = 0;
+            foreach (FileInfo fi in di.GetFiles())
+            {
+                string fileName = fi.Name.Substring(0, fi.Name.Length - ".event".Length);
+                int fileNum = Int32.Parse(fileName);
+                if (fileNum >= id)
+                    id = fileNum + 1;
+            }
+            string newEventFileContent = id.ToString() + "\t" + datetime.Day + "." + datetime.Month + "." + datetime.Year + "\t" + datetime.ToShortTimeString() + "\t" + duration.ToString() + "\t" + header + "\t" + comment;
+            string newEventFilePath = "..\\..\\..\\events\\" + id.ToString() + ".event";
+            StreamWriter _sw = new StreamWriter(File.Open(newEventFilePath, FileMode.CreateNew, FileAccess.Write));
+            _sw.WriteLine(newEventFileContent);
+            _sw.Close();
         }
 
         /// <summary>
@@ -306,21 +326,16 @@ namespace EventManager_CSharp
             string _header = _tokens[4];
             string _comment = _tokens[5];
 
-            DirectoryInfo _di = new DirectoryInfo(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events"));
-            int _id = 0;
-            foreach (FileInfo _fi in _di.GetFiles())
+            _add(_datetime, _duration, _header, _comment);
+            foreach (Client _client in Client.clientsMap.Values)
             {
-                string fileName = _fi.Name.Substring(0, _fi.Name.Length - ".event".Length);
-                int fileNum = Int32.Parse(fileName);
-                if (fileNum >= _id)
-                    _id = fileNum + 1;
+                _client.eManager._add(_datetime, _duration, _header, _comment);
             }
-            string newEventFileContent = _id.ToString() + "\t" + _datetime.Day + "." + _datetime.Month + "." + _datetime.Year + "\t" + _datetime.ToShortTimeString() + "\t" + _duration.ToString() + "\t" + _header + "\t" + _comment;
-            string newEventFilePath = "..\\..\\..\\events\\"+_id.ToString()+".event";
-            StreamWriter _sw = new StreamWriter(File.Open(newEventFilePath, FileMode.CreateNew, FileAccess.Write));
-            _sw.WriteLine(newEventFileContent);
-            _sw.Close();
-            // ToDo: send the newly created file to the other devices...
+        }
+
+        public void _remove(string id)
+        {
+            File.Delete(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events\\" + id + ".event"));
         }
 
         /// <summary>
@@ -346,8 +361,20 @@ namespace EventManager_CSharp
                 return;
             }
 
-            File.Delete(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events\\" + _tokens[1] + ".event"));
-            //ToDo: Notify other devices
+            _remove(_tokens[1]);
+            foreach (Client _client in Client.clientsMap.Values)
+            {
+                _client.eManager._remove(_tokens[1]);
+            }
+        }
+
+        public void _clear()
+        {
+            DirectoryInfo _di = new DirectoryInfo(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events"));
+            foreach (FileInfo _fi in _di.GetFiles())
+            {
+                File.Delete(_fi.FullName);
+            }
         }
 
         /// <summary>
@@ -355,12 +382,11 @@ namespace EventManager_CSharp
         /// </summary>
         private void clear()
         {
-            DirectoryInfo _di = new DirectoryInfo(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events"));
-            foreach (FileInfo _fi in _di.GetFiles())
+            _clear();
+            foreach (Client _client in Client.clientsMap.Values)
             {
-                File.Delete(_fi.FullName);
+                _client.eManager._clear();
             }
-            //ToDo: Notify other devices 
         }
 
         /// <summary>
