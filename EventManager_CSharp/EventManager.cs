@@ -91,7 +91,7 @@ namespace EventManager_CSharp
 
         public void _modify(string id, string field, string newValue)
         {
-            StreamReader _sr = new StreamReader(File.Open(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events\\" + _id + ".event"), FileMode.Open, FileAccess.Read));
+            StreamReader _sr = new StreamReader(File.Open(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events\\" + id + ".event"), FileMode.Open, FileAccess.Read));
             string _s = _sr.ReadLine();
             _sr.Close();
             string[] _fields = _s.Split(new string[] { "\t" }, StringSplitOptions.RemoveEmptyEntries);
