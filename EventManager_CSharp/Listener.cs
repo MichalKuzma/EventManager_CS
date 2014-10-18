@@ -26,7 +26,7 @@ namespace EventManager_CSharp
         public void Start()
         {
             RemotingConfiguration.Configure("..\\..\\..\\config\\Listener.config", false);
-            HttpChannel chan = new HttpChannel(8080);
+            HttpChannel chan = new HttpChannel(8000);
             ChannelServices.RegisterChannel(chan, false);
             RemotingConfiguration.RegisterWellKnownServiceType(typeof(EventManager), "EventManager", WellKnownObjectMode.Singleton);
         }
