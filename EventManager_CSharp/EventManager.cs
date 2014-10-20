@@ -253,19 +253,10 @@ namespace EventManager_CSharp
             }
         }
 
-        public void _add(DateTime datetime, int duration, string header, string comment)
+        public void _add(int evID, DateTime datetime, int duration, string header, string comment)
         {
-            DirectoryInfo di = new DirectoryInfo(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events"));
-            int id = 0;
-            foreach (FileInfo fi in di.GetFiles())
-            {
-                string fileName = fi.Name.Substring(0, fi.Name.Length - ".event".Length);
-                int fileNum = Int32.Parse(fileName);
-                if (fileNum >= id)
-                    id = fileNum + 1;
-            }
-            string newEventFileContent = id.ToString() + "\t" + datetime.Day + "." + datetime.Month + "." + datetime.Year + "\t" + datetime.ToShortTimeString() + "\t" + duration.ToString() + "\t" + header + "\t" + comment;
-            string newEventFilePath = "..\\..\\..\\events\\" + id.ToString() + ".event";
+            string newEventFileContent = evID.ToString() + "\t" + datetime.Day + "." + datetime.Month + "." + datetime.Year + "\t" + datetime.ToShortTimeString() + "\t" + duration.ToString() + "\t" + header + "\t" + comment;
+            string newEventFilePath = "..\\..\\..\\events\\" + evID.ToString() + ".event";
             StreamWriter _sw = new StreamWriter(File.Open(newEventFilePath, FileMode.CreateNew, FileAccess.Write));
             _sw.WriteLine(newEventFileContent);
             _sw.Close();
@@ -326,10 +317,20 @@ namespace EventManager_CSharp
             string _header = _tokens[4];
             string _comment = _tokens[5];
 
-            _add(_datetime, _duration, _header, _comment);
+            DirectoryInfo di = new DirectoryInfo(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, "..\\..\\..\\events"));
+            int id = 0;
+            foreach (FileInfo fi in di.GetFiles())
+            {
+                string fileName = fi.Name.Substring(0, fi.Name.Length - ".event".Length);
+                int fileNum = Int32.Parse(fileName);
+                if (fileNum >= id)
+                    id = fileNum + 1;
+            }
+
+            _add(id, _datetime, _duration, _header, _comment);
             foreach (Client _client in Client.clientsMap.Values)
             {
-                _client.eManager._add(_datetime, _duration, _header, _comment);
+                _client.eManager._add(id, _datetime, _duration, _header, _comment);
             }
         }
 

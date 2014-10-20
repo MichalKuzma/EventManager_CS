@@ -17,7 +17,7 @@ namespace EventManager_CSharp
         public Client(string serverAddress)
         {
             //RemotingConfiguration.Configure("..\\..\\..\\config\\Client.config", false);
-            eManager = (EventManager)Activator.GetObject(typeof(EventManager), "http://"+serverAddress+":8000/EventManager");
+            eManager = (EventManager)Activator.GetObject(typeof(EventManager), "http://"+serverAddress+":80/EventManager");
         }
 
         public static Dictionary<string, Client> clientsMap = new Dictionary<string,Client>();
